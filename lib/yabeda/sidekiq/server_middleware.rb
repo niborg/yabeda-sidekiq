@@ -20,7 +20,8 @@ module Yabeda
             yield
           end
           Yabeda.sidekiq_jobs_success_total.increment(labels)
-        rescue Exception # rubocop: disable Lint/RescueException
+        rescue Exception => e # rubocop: disable Lint/RescueException
+          labels[:error] = e.class.name if Yabeda::Sidekiq.config.label_for_error_class_on_sidekiq_jobs_failed
           Yabeda.sidekiq_jobs_failed_total.increment(labels)
           raise
         ensure
